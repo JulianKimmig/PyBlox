@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PyBlox</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+<div class="row"><
+    <div id=code_creator class="col col-md-9">
+    </div>
+    <div id=python_code class="col col-md-3">
+    </div>
+</div>
+
+
+
+<script src="js/jquery-3.4.1.min.js"> </script>
+
+<script type="text/javascript" src="js/blockly/blockly_compressed.js"></script>
+<script src="js/pyblox/generators.js"></script>
+
+
+<script>
+
+    function startup() {
+        workspace = Blockly.inject('code_creator',
+            {toolbox: toolbox_xml});
+
+        if(workspace_string)
+            Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(workspace_string), workspace);
+    }
+
+    startup();
+</script>
+</body>
+</html>
+
+<div id=treeview>
+
+</div>
+<button onclick="update_view()">refresh</button>
+<button onclick="add_category()">add catergorie</button>
+<button onclick="remove_category()">remove catergorie</button>
+
+<form method="get" onsubmit="save()">
+    <textarea class="form-control" name="toolbox_xml" hidden></textarea>
+    <textarea class="form-control" name="workspace_xml"></textarea>
+    <textarea name="python_code" rows="10"></textarea>
+    <button class="btn btn-primary"><i class="material-icons inline-icon">save</i>Save</button>
+
+</form>
+
+
+
+
+
+
+
+<script src="blocks_compressed.js"></script>
+
+<script src="python_compressed.js"></script>
+
+
+<script src="blocks.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+
+<script>
+
+    function startup() {
+        workspace = Blockly.inject('code_creator',
+            {toolbox: toolbox_xml});
+
+        if(workspace_string)
+            Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(workspace_string), workspace);
+    }
+
+    startup();
+
+
+
+
+    function JavascriptgetURLParameterValues(parameterName, url) {
+        if (!url) url = window.location.href;
+        parameterName = parameterName.replace(/[\[\]]/g, "\\$&");
+        var regularExpression =
+                new RegExp("[?&]" + parameterName + "(=([^&#]*)|&|#|$)"),
+            results = regularExpression.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    function getQuery(q) {
+        return (window.location.search.match(new RegExp('[?&]' + q + '=([^&]+)')) || [, null])[1];
+    }
+
+    toolbox_string = getQuery('toolbox_xml') ? decodeURIComponent(decodeURIComponent(getQuery('toolbox_xml'))) : ['<xml id="toolbox">',
+        '<category name="default"></category>',
+        '</xml>'].join('');
+
+    workspace_string = getQuery('workspace_xml') ? decodeURIComponent(decodeURIComponent(getQuery('workspace_xml'))) : ['<xml id="workspace">',
+        '</xml>'].join('');
+
+    var toolbox_xml = $.parseXML(toolbox_string);
+    var toolbox_json = {};
+
+    function xmlToJson(xmlNode) {
+        attributes = {};
+        for (var i = 0; i < xmlNode.attributes.length; i++) {
+            let attrib = xmlNode.attributes[i];
+            attributes[attrib.name] = attrib.specified ? attrib.value : null
+        }
+        if (attributes.id === undefined)
+            attributes.id = "_" + Math.random().toString(36).substr(2);
+        xmlNode.id = attributes.id;
+
+        return {
+            id: attributes.id,
+            attributes: attributes,
+            type: xmlNode.tagName,
+            text: xmlNode.firstChild && xmlNode.firstChild.nodeType === 3 ?
+                xmlNode.firstChild.textContent.trim() : '',
+            children: [...xmlNode.children
+    ].
+        map(childNode = > xmlToJson(childNode)
+    )
+    }
+        ;
+    }
+
+
+    function json_node_to_treenode(node) {
+        let obj = {};
+        if (node.id) {
+            obj.id = node.id
+        }
+        obj.text = node.attributes.name ? node.attributes.name : "UNKNOWN";
+        obj.state = {
+            opened: node.attributes.expanded ? (node.attributes.expanded === "true") : false,
+            disabled: false,
+            selected: false,
+        };
+        obj.children = [...node.children
+    ].
+        map(childNode = > json_node_to_treenode(childNode)
+    )
+        ;
+        return obj
+    }
+
+    function json_toolbox_to_treeview() {
+        return [...toolbox_json.children
+    ].
+        map(childNode = > json_node_to_treenode(childNode)
+    )
+    }
+
+
+    var cat_tree = $('#treeview');
+
+
+    function generate_json_toolbox() {
+        toolbox_json = xmlToJson(toolbox_xml.documentElement);
+        cat_tree.jstree({
+            core: {
+                'check_callback': true,
+                'data': json_toolbox_to_treeview()
+            }
+        });
+    }
+
+
+    function get_selected_cat() {
+        let selected = cat_tree.jstree('get_selected');
+        if (selected.length > 0)
+            return selected[0];
+        return null;
+    }
+
+
+    function add_category(parent=null, name=null, attributes={}) {
+        if (name == null)
+            name = prompt("category name");
+        if (name === null)
+            return;
+
+        if (parent === null)
+            parent = get_selected_cat();
+
+        var append_to = null;
+
+        if (parent !== null)
+            append_to = toolbox_xml.getElementById(parent);
+
+
+        if (append_to === null)
+            append_to = toolbox_xml.documentElement;
+        console.log(append_to);
+
+        if (append_to.hasAttribute("role")) {
+            if (append_to.getAttribute("role") !== "category")
+                return;
+        } else {
+            console.log(cat_tree.find("#" + parent).find(".jstree-themeicon"));
+            append_to.setAttribute("role", "category");
+        }
+        let cat = toolbox_xml.createElement('category');
+        for (let a in attributes)
+            cat.setAttribute(a, attributes[a]);
+        cat.setAttribute('name', name);
+        cat_tree.jstree().create_node((parent ? parent : '#'), json_node_to_treenode(xmlToJson(cat)), 'last');
+        append_to.append(cat);
+
+        update_view();
+    }
+
+
+    function remove_category(node=null) {
+        if (node === null)
+            node = get_selected_cat();
+        if (node === null)
+            return;
+        let xml_node = toolbox_xml.getElementById(node);
+        if (toolbox_xml.documentElement.childElementCount <= 1 && xml_node.parentNode === toolbox_xml.documentElement) {
+            alert("One category has to be in the tree");
+            return;
+        }
+        toolbox_xml.getElementById(node).remove();
+
+
+        cat_tree.jstree("delete_node", "#" + node);
+        update_view();
+    }
+
+    var selected_node = null;
+
+    function node_deselect(node) {
+        node.was_selected = false;
+        selected_node = null;
+    }
+
+    cat_tree.on('loaded.jstree', function (e, data) {
+        update_view();
+    });
+
+    cat_tree.on('deselect_node.jstree', function (e, data) {
+        node_deselect(data.node)
+    });
+
+    cat_tree.on('select_node.jstree', function (e, data) {
+        if (data.node.was_selected) {
+            cat_tree.jstree().deselect_node(data.node)
+        } else {
+            console.log(selected_node);
+            if (selected_node) {
+                cat_tree.jstree().deselect_node(selected_node);
+                node_deselect(selected_node)
+            }
+            data.node.was_selected = true;
+            selected_node = data.node;
+        }
+    });
+
+
+    cat_tree.on('open_node.jstree', function (e, data) {
+        toolbox_xml.getElementById(data.node.id).setAttribute("expanded", "true");
+        update_view();
+    });
+    cat_tree.on('close_node.jstree', function (e, data) {
+        toolbox_xml.getElementById(data.node.id).removeAttribute("expanded");
+        update_view();
+    });
+
+
+    function update_view() {
+        cat_tree.find('li').not('.jstree-leaf').children('a').children(".jstree-themeicon").addClass('material-icons inline-icon').text("list").removeClass('jstree-themeicon jstree-icon')
+        $('[name="toolbox_xml"]').val(toolbox_xml.documentElement.outerHTML);
+        workspace.updateToolbox(toolbox_xml.documentElement);
+        $('[name="python_code"]').val(Blockly.Python.workspaceToCode(workspace));
+
+        $('[name="workspace_xml"]').val(Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace)));
+
+    }
+
+
+    var workspace = Blockly.inject('code_creator',
+        {toolbox: toolbox_xml.documentElement});
+
+    Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(workspace_string), workspace);
+
+
+    $(function () {
+        generate_json_toolbox();
+        update_view()
+    });
+
+
+    function save() {
+        update_view();
+        let name = $('[name="toolbox_xml"]');
+        name.val(encodeURIComponent(name.val()));
+        name = $('[name="workspace_xml"]');
+        name.val(encodeURIComponent(name.val()));
+    }
+
+
+</script>
+
+
+<script>
+    function insertblock(type, target=null) {
+        let box = null;
+        if (target !== null)
+            box = toolbox_xml.getElementById(target);
+        else
+            box = toolbox_xml.documentElement.children[toolbox_xml.documentElement.childElementCount - 1];
+
+        if (box.hasAttribute("role")) {
+            if (box.getAttribute("role") !== "box")
+                return;
+        } else {
+            box.setAttribute("role", "box");
+        }
+        let cat = toolbox_xml.createElement('block');
+        cat.setAttribute('type', type);
+        box.append(cat);
+        update_view();
+    }
+
+    $(function () {
+        if (!toolbox_xml.getElementById("variables"))
+            add_category(null, "Variables", {colour: "#a55b80", custom: "VARIABLE", id: "variables"});
+        if (!toolbox_xml.getElementById("all_blocks")) {
+            add_category(null, "blocks", {colour: "#1739a5", id: "all_blocks"});
+            insertblock('class');
+            insertblock('inherited_class');
+            insertblock('ini_class');
+        }
+    });
+
+
+</script>
+</body>
+</html>

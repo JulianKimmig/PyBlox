@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PyBlox</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+<div class="row" style="min-height: calc(100vh - 50px);width: 100%;">
+    <div id=code_creator class="col col-md-9">
+    </div>
+    <textarea id=python_code class="col col-md-3">
+
+    </textarea>
+</div>
+
+
+
+<script src="js/jquery-3.4.1.min.js"> </script>
+
+<script type="text/javascript" src="js/blockly/blockly_compressed.js"></script>
+<script type="text/javascript" src="js/blockly/blocks_compressed.js"></script>
+<script type="text/javascript" src="js/blockly/msg/js/en.js"></script>
+<script type="text/javascript" src="js/blockly/python_compressed.js"></script>
+
+
+<script src="js/pyblox/pyblox.js"></script>
+
+<script src="js/pyblox/fields.js"></script>
+
+<script src="js/pyblox/scoping.js"></script>
+<script src="js/pyblox/vars.js"></script>
+<script src="js/pyblox/functions.js"></script>
+<script src="js/pyblox/class.js"></script>
+
+<script>
+    var toolbox_xml = null;
+    function load_data() {
+        toolbox_xml = document.getElementById("toolbox");
+        if(!toolbox_xml) {
+            //if not fallback to local storage
+            toolbox_string = window.localStorage.getItem('toolbox');
+            // if not fallback to server request
+            if(!toolbox_string) {
+                $.ajax({
+                    type: "GET",
+                    url: "toolbox.xml",
+                    dataType: "xml",
+                    success: function (xml) {
+                        toolbox_xml = xml.documentElement;
+                        startup();
+                    }
+                });
+            }
+            else
+                toolbox_xml = $.readXML(toolbox_string).documentElement;
+        }
+    }
+    // get toolbox
+    // cehck if in document
+
+
+
+    function startup() {
+        if(!toolbox_xml)
+            return;
+        console.log(toolbox_xml);
+        workspace = Blockly.inject('code_creator',
+            {toolbox: toolbox_xml});
+
+        PYBLOX.register_workspace(workspace);
+
+        workspace.addChangeListener(function (event) {
+            $('#python_code').val(Blockly.Python.workspaceToCode(workspace));
+            window.localStorage.setItem('workspace', Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace)))
+        });
+
+        if(window.localStorage.getItem('workspace'))
+            try {
+                Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(window.localStorage.getItem('workspace')), workspace);
+            }catch(e){}
+    }
+
+    load_data()
+    //startup();
+</script>
+</body>
+</html>
