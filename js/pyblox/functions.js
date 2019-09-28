@@ -47,14 +47,12 @@ Blockly.Python['pyblox_function_definition_block'] = function(block) {
     var variable_class_name = Blockly.Python.variableDB_.getName(block.getFieldValue('var_name'), Blockly.Variables.NAME_TYPE);
     var value_superclass = Blockly.Python.valueToCode(block, 'superclass', Blockly.Python.ORDER_ATOMIC);
     var scope_code = Blockly.Python.statementToCode(block, 'scope');
+    if(scope_code === "")
+        scope_code = "pass\n";
     // TODO: Assemble Python into code variable.
-    var code = this.prefix +' '+variable_class_name+"():\n" + scope_code;
+    var code = this.prefix +' '+variable_class_name+"():\n" + scope_code.replace(/^/g,"  ");
 
-    code = Blockly.Python.scrub_(block, code);
-    Blockly.Python.definitions_["%" + variable_class_name] = code;
-    return null
+    //code = Blockly.Python.scrub_(block, code);
 
-    return null;
+    return code;
 };
-
-
