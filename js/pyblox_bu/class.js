@@ -1,4 +1,4 @@
-Blockly.Blocks['pyblox_class_block'] = {
+Blockly.Blocks.pyblox_class_block = {
     init: function() {
         this.appendDummyInput()
             .appendField("ClassBlock");
@@ -22,7 +22,7 @@ Blockly.Blocks['pyblox_class_block'] = {
     }
 };
 
-Blockly.Python['pyblox_class_block'] = function(block) {
+Blockly.Python.pyblox_class_block = function(block) {
     var variable_class_name = Blockly.Python.variableDB_.getName(block.getFieldValue('var_name'), Blockly.Variables.NAME_TYPE);
     var value_superclass = Blockly.Python.valueToCode(block, 'superclass', Blockly.Python.ORDER_ATOMIC);
     var statements_attributes = Blockly.Python.statementToCode(block, 'attributes');

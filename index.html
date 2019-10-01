@@ -66,10 +66,8 @@
         if(!toolbox_xml)
             return;
         console.log(toolbox_xml);
-        workspace = Blockly.inject('code_creator',
-            {toolbox: toolbox_xml});
 
-        PYBLOX.register_workspace(workspace);
+        workspace = PYBLOX.inject('code_creator',toolbox_xml);
 
         workspace.addChangeListener(function (event) {
             $('#python_code').val(Blockly.Python.workspaceToCode(workspace));

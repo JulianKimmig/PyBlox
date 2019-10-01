@@ -1,18 +1,22 @@
-Blockly.Blocks['pyblox_class_block'] = {
+PYBLOX.VARTYPES.CLASS = "pyblox_class";
+PYBLOX.PYTHON.STRINGS.CLASSDEFINITION = "class";
+
+Blockly.Blocks.pyblox_class_block = {
     init: function() {
 
         PYBLOX.FUNCTIONS.block_set_default_values(this,{
-            prefix:"class",
-            default_name: "ClassName"
+            prefix:PYBLOX.PYTHON.STRINGS.CLASSDEFINITION,
+            default_name: PYBLOX.FUNCTIONS.var_name_generator("Class")
         });
-        PYBLOX.Blocks['pyblox_abstract_function_definition_block'].init.call(this);
+        PYBLOX.Blocks.pyblox_abstract_function_definition_block.init.call(this);
 
 
-        this.var_class = "pyblox_class";
+        this.var_class = PYBLOX.VARTYPES.CLASS;
         this.setColour(PYBLOX.COLORS.CLASS);
     }
 };
 
+Blockly.Python.pyblox_class_block = Blockly.Python.pyblox_function_definition_block;
 
 
 
@@ -29,8 +33,6 @@ Blockly.Blocks['pyblox_class_block'] = {
 
 
 
-
-Blockly.Python['pyblox_class_block'] = Blockly.Python['pyblox_function_definition_block']
 
 
 Blockly.Blocks['pyblox_class_var_caller'] = {

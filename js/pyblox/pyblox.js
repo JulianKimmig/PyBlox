@@ -3,11 +3,16 @@ var PYBLOX = {
     FUNCTIONS:{},
     registerworkspacefunctions:[],
     FLYOUTS:{},
-    NESTEDFLYOUTS:{},
+   // NESTEDFLYOUTS:{},
     FIELDS:{},
     SCOPES:{},
     Blocks:{},
     DUMMY_WORKSPACE : new Blockly.Workspace(),
+    VARTYPES:{},
+    PYTHON:{STRINGS:{},
+    GENERATOR:{}
+    },
+    REFERENCES:{}
 };
 
 
@@ -20,11 +25,23 @@ PYBLOX.COLORS.CLASS = '#9d75d4';
 PYBLOX.COLORS.FUNCTION = '#5890d4';
 
 //wokspaceini
+
+PYBLOX.inject = function (div_id, toolbox,options={}){
+    options.toolbox = toolbox;
+    let workspace = Blockly.inject(div_id,
+        options);
+
+    PYBLOX.register_workspace(workspace);
+    return workspace;
+};
+
+
 PYBLOX.registerworkspacefunctions.push(function(workspace) {
     for(let n in PYBLOX.FLYOUTS){
         workspace.registerToolboxCategoryCallback(
             n, PYBLOX.FLYOUTS[n]);
     }
+   /*
     for(let n in PYBLOX.NESTEDFLYOUTS){
         workspace.registerToolboxCategoryCallback(
             n,function(workspace){
@@ -35,10 +52,14 @@ PYBLOX.registerworkspacefunctions.push(function(workspace) {
             }
             );
     }
+    */
 });
 
 
 // functions
+PYBLOX.FUNCTIONS.var_name_generator = function(prefix){
+    return prefix + "_" + Math.random().toString(36).substring(2,6);
+};
 
 PYBLOX.FUNCTIONS.block_set_default_value = function(block,attribute,value){
     block[attribute] = block[attribute] || value
@@ -98,10 +119,11 @@ PYBLOX.FUNCTIONS.event_to_block = function (event) {
 
 };
 
+/*
 PYBLOX.FUNCTIONS.add_to_nested_flyout = function (name, func) {
     if(!PYBLOX.NESTEDFLYOUTS[name])
         PYBLOX.NESTEDFLYOUTS[name] = [];
     PYBLOX.NESTEDFLYOUTS[name].push(func)
 };
-
+*/
 
