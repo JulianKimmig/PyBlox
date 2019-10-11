@@ -22,6 +22,28 @@ Blockly.Python.pyblox_class_block = Blockly.Python.pyblox_function_definition_bl
 
 
 
+PYBLOX.FLYOUTS.CLASSES =  function (ws) {
+    var xmlList = [];
+    var all_blocks = workspace.getAllBlocks();
+    for (let i = 0,block;block = all_blocks[i]; i++) {
+        if(block.has_scope){
+            if(!block.scope){
+                if(block.var_class === PYBLOX.VARTYPES.CLASS) {
+                    let field = block.getField(PYBLOX.REFERENCES.VAR_NAME);
+                    if (field && field instanceof PYBLOX.FIELDS.VarNameInputField) {
+                        // var blockText = '<block type="pyblox_var_instance_block">' +
+                        //     '<field name="' + PYBLOX.REFERENCES.VAR_NAME + '">' + field.getValue() + '</field>' +
+                        //    '<field name="' + PYBLOX.REFERENCES.VAR_LINK + '">' + block.id + '</field>' +
+                        //    '</block>';
+                        //  var block_xml = Blockly.Xml.textToDom(blockText);
+                        //   xmlList.push(block_xml);
+                    }
+                }
+            }
+        }
+    }
+    return xmlList;
+};
 
 
 

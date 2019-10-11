@@ -8,14 +8,17 @@
 <body>
 
 <div class="row" style="min-height: calc(100vh - 50px);width: 100%;">
-    <div id=code_creator class="col col-md-9">
+    <div id=code_creator class="col col-md-8">
     </div>
-    <textarea id=python_code class="col col-md-3">
+    <textarea id=python_code class="col col-md-4">
 
     </textarea>
 </div>
+<div class="row" style="width: 100%;">
+<textarea id=workspace_code class="col col-md-12" rows="40">
 
-
+    </textarea>
+</div>
 
 <script src="js/jquery-3.4.1.min.js"> </script>
 
@@ -28,7 +31,7 @@
 <script src="js/pyblox/pyblox.js"></script>
 
 <script src="js/pyblox/fields.js"></script>
-
+<script src="js/pyblox/general_pyblock.js"></script>
 <script src="js/pyblox/scoping.js"></script>
 <script src="js/pyblox/vars.js"></script>
 <script src="js/pyblox/functions.js"></script>
@@ -71,7 +74,8 @@
 
         workspace.addChangeListener(function (event) {
             $('#python_code').val(Blockly.Python.workspaceToCode(workspace));
-            window.localStorage.setItem('workspace', Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace)))
+            window.localStorage.setItem('workspace', Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace)));
+            $('#workspace_code').val(Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(workspace)));
         });
 
         if(window.localStorage.getItem('workspace'))

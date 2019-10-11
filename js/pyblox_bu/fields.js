@@ -34,10 +34,10 @@ Blockly.Field.register("pyblox_field_VarLinkField", PYBLOX.FIELDS.VarLinkField);
 rename_all_variables_by_source_block = function(sourceblock,newname){
     let ab = sourceblock.workspace.getAllBlocks();
     for(let i = 0; i< ab.length;i++){
-        let linkfield = ab[i].getField(PYBLOX.REFERENCES.VAR_LINK);
+        let linkfield = ab[i].getField("var_link");
         if(linkfield)
             if(linkfield.getText()===sourceblock.id)
-                ab[i].getField(PYBLOX.REFERENCES.VAR_NAME).setValue(newname)
+                ab[i].getField("var_name").setValue(newname)
     }
 };
 
@@ -48,7 +48,6 @@ PYBLOX.FIELDS.VarNameInputField = function (name) {
         if(newvarname === "")
             return oldname;
         rename_all_variables_by_source_block(this.getSourceBlock(),newvarname);
-        this.getSourceBlock().name = newvarname;
         return newvarname
     })
 };

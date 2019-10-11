@@ -23,6 +23,7 @@ var PYBLOX = {
 //visuals
 PYBLOX.COLORS.CLASS = '#9d75d4';
 PYBLOX.COLORS.FUNCTION = '#5890d4';
+PYBLOX.COLORS.VARIABLE = '#5cd4d4';
 
 //wokspaceini
 
@@ -78,7 +79,7 @@ PYBLOX.FUNCTIONS.find_block_by_id_globally = function(id){
             return b;
     }
     return null
-}
+};
 
 PYBLOX.FUNCTIONS.validate_var_name = function(input){
     return input.trim().replace(/^[^a-zA-Z_]|[^0-9a-zA-Z_]/g, "_");
@@ -87,6 +88,8 @@ PYBLOX.FUNCTIONS.validate_var_name = function(input){
 PYBLOX.register_workspace = function (ws) {
     for(let i=0;i< PYBLOX.registerworkspacefunctions.length;i++)
         PYBLOX.registerworkspacefunctions[i](ws);
+
+
 };
 
 PYBLOX.FUNCTIONS.event_irrelevant_for_blocks = function (event) {

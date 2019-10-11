@@ -7,8 +7,9 @@
         <block type="pyblox_ini_var_block"></block>
     </category>
     <category name="Variables" colour="#a55b80" custom="LOKALPYVARS" />
+    <category name="Functions" colour="#a55b80" custom="FUNCTIONS"/>
+    <category name="Classes" colour="#a55b80" custom="CLASSES"/>
     <category name="Scopes" colour="#a55b80" box="SCOPES"/>
-
     <category name = "pre">
         <category name="Variables" colour="#a55b80" custom="VARIABLE"/>
         <category name="Logic" colour="#5b80a5">

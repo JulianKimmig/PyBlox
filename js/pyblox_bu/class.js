@@ -1,35 +1,38 @@
+PYBLOX.VARTYPES.CLASS = "pyblox_class";
+PYBLOX.PYTHON.STRINGS.CLASSDEFINITION = "class";
+
 Blockly.Blocks.pyblox_class_block = {
     init: function() {
-        this.appendDummyInput()
-            .appendField("ClassBlock");
-        this.appendDummyInput()
-            .appendField("Name")
-            .appendField(new PYBLOX.FIELDS.VarNameInputField("className"
-            ), "var_name");
-        this.appendValueInput("superclass")
-            .setCheck("class")
-            .appendField("superclass(es)");
-        this.appendStatementInput("attributes")
-            .setCheck(null)
-            .appendField("Attributes");
-        this.setInputsInline(false);
+
+        PYBLOX.FUNCTIONS.block_set_default_values(this,{
+            prefix:PYBLOX.PYTHON.STRINGS.CLASSDEFINITION,
+            default_name: PYBLOX.FUNCTIONS.var_name_generator("Class")
+        });
+        PYBLOX.Blocks.pyblox_abstract_function_definition_block.init.call(this);
+
+
+        this.var_class = PYBLOX.VARTYPES.CLASS;
         this.setColour(PYBLOX.COLORS.CLASS);
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setTooltip("");
-        this.setHelpUrl("");
-        this.varclass = "pyblox_class_var_caller"
     }
 };
 
-Blockly.Python.pyblox_class_block = function(block) {
-    var variable_class_name = Blockly.Python.variableDB_.getName(block.getFieldValue('var_name'), Blockly.Variables.NAME_TYPE);
-    var value_superclass = Blockly.Python.valueToCode(block, 'superclass', Blockly.Python.ORDER_ATOMIC);
-    var statements_attributes = Blockly.Python.statementToCode(block, 'attributes');
-    // TODO: Assemble Python into code variable.
-    var code = 'class '+variable_class_name+"():\n";
-    return code;
-};
+Blockly.Python.pyblox_class_block = Blockly.Python.pyblox_function_definition_block;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Blockly.Blocks['pyblox_class_var_caller'] = {
@@ -58,14 +61,14 @@ Blockly.Python['pyblox_class_var_caller'] = function(block) {
 
 
 
-
-
-
 function event_pyblox_class_block(block,event){
     if (event.type === Blockly.Events.CREATE) {
     }
     if (event.type === Blockly.Events.CHANGE) {
-
+    }
+    if (event.type === Blockly.Events.BLOCK_MOVE) {
+    }
+    if (event.type === Blockly.Events.DELETE) {
     }
 }
 
@@ -77,17 +80,24 @@ function event_pyblox_class_var_caller_block(block,event){
 }
 
 
+
+
 PYBLOX.registerworkspacefunctions.push(function(workspace) {
     workspace.addChangeListener(function (event) {
         if(PYBLOX.FUNCTIONS.event_irrelevant_for_blocks(event))
             return;
 
-        let block = PYBLOX.FUNCTIONS.event_to_block(event);
-
-        if (block.type === "pyblox_class_block"){
-            event_pyblox_class_block(block,event)
-        }else if (block.type === "pyblox_class_var_caller"){
-            event_pyblox_class_var_caller_block(block,event)
+        let blocks = PYBLOX.FUNCTIONS.event_to_block(event);
+        for(let i = 0; i<blocks.length;i++) {
+            if (!blocks[i]) {
+                //console.error("blocks[i] not defined")
+                return;
+            }
+            if (blocks[i].type === "pyblox_class_block") {
+                event_pyblox_class_block(blocks[i], event)
+            } else if (blocks[i].type === "pyblox_class_var_caller") {
+                event_pyblox_class_var_caller_block(blocks[i], event)
+            }
         }
     });
 });

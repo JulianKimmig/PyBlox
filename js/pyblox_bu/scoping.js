@@ -1,165 +1,25 @@
 PYBLOX.REFERENCES.SCOPE = "scope";
 PYBLOX.PYTHON.STRINGS.EMPTYSCOPE = "pass";
+
 PYBLOX.REFERENCES.SCOPESCATEGORYNAME = "Scopes";
 
-
-//PYBLOX.FUNCTIONS.add_to_scope(event.workspaceId,block.getSurroundParent()?block.getSurroundParent().id:null,block.id)
-
 PYBLOX.Blocks.pyblox_scope_block = {
-
-    init: function() {
+    init: function(options) {
         PYBLOX.FUNCTIONS.block_set_default_values(this,{
             scope_name:undefined,
             create_scope:false,
             has_scope:true,
-            name:this.id
         });
-        PYBLOX.Blocks.pyblox_general_block.init.call(this);
-        if(this.create_scope) {
+
+        if(this.create_scope)
             this.appendStatementInput(PYBLOX.REFERENCES.SCOPE)
                 .setCheck(null)
                 .appendField(this.scope_name);
-            this.scope_contents = [];
-        }
 
-
-        this.update_scope = PYBLOX.Blocks.pyblox_scope_block._update_scope.bind(this);
-        this.add_scope_content = PYBLOX.Blocks.pyblox_scope_block._add_scope_content.bind(this);
-        this.remove_scope_content = PYBLOX.Blocks.pyblox_scope_block._remove_scope_content.bind(this);
-        this.get_all_scope_vars = PYBLOX.Blocks.pyblox_scope_block._get_all_scope_vars.bind(this);
-        this.add_move_function(this.update_scope);
-        this.add_create_function(this.update_scope);
-
-        if(!this.workspace.scope_contents)
-            this.workspace.scope_contents=[];
-        if(!this.workspace.create_scope)
-            this.workspace.create_scope = true;
-        if(!this.workspace.update_scope)
-            this.workspace.update_scope = PYBLOX.Blocks.pyblox_scope_block._update_scope.bind(this.workspace);
-        if(!this.workspace.add_scope_content)
-            this.workspace.add_scope_content = PYBLOX.Blocks.pyblox_scope_block._add_scope_content.bind(this.workspace);
-        if(!this.workspace.remove_scope_content)
-            this.workspace.remove_scope_content = PYBLOX.Blocks.pyblox_scope_block._remove_scope_content.bind(this.workspace);
-        if(!this.workspace.get_all_scope_vars)
-            this.workspace.get_all_scope_vars = PYBLOX.Blocks.pyblox_scope_block._get_all_scope_vars.bind(this.workspace);
-
-
-    },
-
-    _add_scope_content(scope_content){
-        if(this.scope_contents.indexOf(scope_content) === -1)
-            this.scope_contents.push(scope_content);
-    },
-
-    _remove_scope_content(scope_content){
-        let i = this.scope_contents.indexOf(scope_content);
-        if(i !== -1)
-            this.scope_contents.splice(i,1);
-    },
-
-    _update_scope(){
-        if(this.has_scope) {
-            let new_scope = this.getSurroundParent() ? this.getSurroundParent() : this.workspace;
-            if(this.scope === new_scope)
-                return;
-            if(this.scope)
-                this.scope.remove_scope_content(this);
-            else if(this.scope === null)
-                PYBLOX.FUNCTIONS.remove_workspace_scope(this);
-
-            if(new_scope)
-                new_scope.add_scope_content(this);
-            else
-                PYBLOX.FUNCTIONS.add_workspace_scope(this);
-
-            this.scope = new_scope;
-            PYBLOX.FUNCTIONS.generate_scopes_cat_tree(this.workspace)
-        }
-    },
-    _get_all_scope_vars(){
-        let scope_vars = [];
-        if(this.scope)
-            scope_vars = this.scope.get_all_scope_vars();
-        if(this.scope_contents){
-            for(let j=0;j<this.scope_contents.length;j++) {
-                let sub_content = this.scope_contents[j];
-                let field = sub_content.getField(PYBLOX.REFERENCES.VAR_NAME);
-                if (field && field instanceof PYBLOX.FIELDS.VarNameInputField) {
-                    scope_vars.push(sub_content);
-                }
-            }
-        }
-        return scope_vars
-    },
-};
-
-
-
-PYBLOX.FUNCTIONS.generate_scopes_cat = function(workspace,scope_ele,scope_contents){
-    //console.log(scope_ele,scope_ele.parentElement,scope_ele.getAttribute("scope"));
-    for(let i=0;i<scope_contents.length;i++){
-        let cont = scope_contents[i];
-        if(cont.create_scope) {
-            let ele = document.createElement("category");
-
-
-            ele.setAttribute("name", cont.name);
-
-            var functionbox = document.createElement("category");
-            functionbox.setAttribute("name", "Functions");
-            ele.append(functionbox);
-
-            var classbox = document.createElement("category");
-            classbox.setAttribute("name", "Classes");
-            ele.append(classbox);
-
-            var scopebox = document.createElement("category");
-            scopebox.setAttribute("name", "Scopes");
-            ele.append(scopebox);
-
-            let  in_scope_vars = cont.get_all_scope_vars();
-            if(in_scope_vars.length > 0){
-                var varbox = document.createElement("category");
-                varbox.setAttribute("name", "Variables");
-                ele.append(varbox);
-            }
-            for(let j=0;j<in_scope_vars.length;j++) {
-                let sub_content = in_scope_vars[j];
-                let field = sub_content.getField(PYBLOX.REFERENCES.VAR_NAME);
-                var blockText = '<block type="pyblox_var_instance_block">' +
-                    '<field name="' + PYBLOX.REFERENCES.VAR_NAME + '">' + field.getValue() + '</field>' +
-                    '<field name="' + PYBLOX.REFERENCES.VAR_LINK + '">' + sub_content.id + '</field>' +
-                    '</block>';
-                var block_xml = Blockly.Xml.textToDom(blockText);
-                varbox.append(block_xml);
-            }
-
-
-            PYBLOX.FUNCTIONS.generate_scopes_cat(workspace, scopebox, cont.scope_contents);
-            scope_ele.append(ele);
-        }
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
     }
 };
-
-PYBLOX.FUNCTIONS.generate_scopes_cat_tree = function(workspace,scope_ele=null){
-    console.log("recat");
-    let toolbox = workspace.options.languageTree;
-    let categories = toolbox.getElementsByTagName("category");
-
-    for (let i = 0;i<categories.length;i++){
-        if(categories[i].getAttribute("box") === "SCOPES"){
-            while (categories[i].firstChild) {
-                categories[i].firstChild.remove();
-            }
-            PYBLOX.FUNCTIONS.generate_scopes_cat(workspace,categories[i],workspace.scope_contents);
-        }
-    }
-    workspace.updateToolbox(toolbox);
-
-};
-
-
-
 
 /**
  * @return {string}
@@ -172,14 +32,6 @@ PYBLOX.PYTHON.GENERATOR.SCOPE = function(block){
 };
 
 
-
-/*
-PYBLOX.registerworkspacefunctions.push(function(workspace) {
-    workspace.addChangeListener(function (event) {
-        if(event.type !== Blockly.Events.UI)
-            PYBLOX.FUNCTIONS.generate_scopes_cat_tree(workspace);
-    });
-});
 PYBLOX.FUNCTIONS.create_scope = function (workspace_id,scope) {
     if(scope === undefined)
         scope = null;
@@ -196,8 +48,7 @@ PYBLOX.FUNCTIONS.get_scope = function (workspace_id, scope) {
     return PYBLOX.FUNCTIONS.create_scope(workspace_id, scope);
 };
 PYBLOX.FUNCTIONS.add_to_scope = function (workspace_id,scope, id) {
-    PYBLOX.FUNCTIONS.get_scope(workspace_id,scope).push(id);
-    return scope
+    PYBLOX.FUNCTIONS.get_scope(workspace_id,scope).push(id)
 };
 
 PYBLOX.FUNCTIONS.remove_from_scope = function (workspace_id, scope, id) {
@@ -280,15 +131,15 @@ PYBLOX.registerworkspacefunctions.push(function(workspace) {
         let blocks = PYBLOX.FUNCTIONS.event_to_block(event);
         for(let i = 0; i<blocks.length;i++) {
             if (!blocks[i]) {
-             //   event_block_missing(event);
+                event_block_missing(event);
                 return;
             }
 
             if (blocks[i].create_scope) {
-         //       event_pyblox_scope_block(blocks[i], event)
+                event_pyblox_scope_block(blocks[i], event)
             }
             if (blocks[i].has_scope) {
-         //       event_pyblox_scoped_block(blocks[i], event)
+                event_pyblox_scoped_block(blocks[i], event)
             }
             //console.log(PYBLOX.SCOPES)
         }
@@ -378,4 +229,3 @@ PYBLOX.FUNCTIONS.generate_scopes_cat_tree = function(workspace){
     workspace.updateToolbox(toolbox);
 
 };
-*/

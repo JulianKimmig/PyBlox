@@ -16671,6 +16671,7 @@ Blockly.Warning.prototype.dispose = function () {
     Blockly.Icon.prototype.dispose.call(this)
 };
 Blockly.Block = function (a, b, c) {
+    //new Blockly.Block(this, a, b)
     if ("undefined" !== typeof Blockly.Generator.prototype[b]) throw Error('Block prototypeName "' + b + '" conflicts with Blockly.Generator members.');
     this.id = c && !a.getBlockById(c) ? c : Blockly.utils.genUid();
     a.blockDB_[this.id] = this;
